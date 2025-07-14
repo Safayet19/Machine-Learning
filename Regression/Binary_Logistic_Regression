@@ -1,0 +1,47 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder
+
+# Step 1: Create the dataset
+data = {
+    'age': [21, 45, 32, 41, 20, 35, 20, 23, 42, 24, 22, 23, 25, 43, 44, 25, 30, 31],
+    'bought_insurance': ['no', 'yes', 'yes', 'yes', 'no', 'yes', 'no', 'no', 'yes', 'yes',
+                         'no', 'no', 'no', 'yes', 'yes', 'no', 'yes', 'yes']
+}
+
+dataset = pd.DataFrame(data)
+
+# Step 2: Encode 'yes'/'no' to 1/0
+le = LabelEncoder()
+dataset['bought_insurance'] = le.fit_transform(dataset['bought_insurance'])  # yes=1, no=0
+
+# Step 3: Define X and y
+x = dataset[['age']]   # Independent variable
+y = dataset['bought_insurance']  # Dependent variable (0 or 1)
+
+# Step 4: Train the logistic regression model
+model = LogisticRegression()
+model.fit(x, y)
+
+# Step 5: Predict for a new age (e.g., 27)
+new_age = [[27]]
+prediction = model.predict(new_age)
+prob = model.predict_proba(new_age)
+
+print(f"Prediction (0 = No, 1 = Yes): {prediction[0]}")
+print(f"Probability [No, Yes]: {prob[0]}")
+
+# Step 6: Plot the data and the logistic curve
+x_vals = np.linspace(min(x['age']), max(x['age']), 300).reshape(-1, 1)
+y_probs = model.predict_proba(x_vals)[:, 1]  # probability of 'yes'
+
+plt.scatter(x, y, color='blue', label='Actual Data')
+plt.plot(x_vals, y_probs, color='red', label='Logistic Regression Curve')
+plt.title('Age vs Bought Insurance')
+plt.xlabel('Age')
+plt.ylabel('Probability of Buying Insurance')
+plt.legend()
+plt.grid(True)
+plt.show()
